@@ -36,8 +36,8 @@ the next tier of functions recursively.
 
 .NOTES 
 Original Author: Stuart Moore (@napalmgram), https://stuart-moore.com
-Source tracked at 
-Written as a helper function to Kevin Marquette's Chronometer module ()
+Source tracked at https://github.com/Stuart-Moore/VariousHelperFunctions/blob/master/Get-FunctionCalls.ps1
+Written as a helper function to Kevin Marquette's Chronometer module (https://github.com/KevinMarquette/Chronometer)
 
 This parses the function to be analysed for it's definition and other functions it calls, so that an entire
 stack can be monitored without needin to manually build up the path or adding every file in the module and
@@ -61,11 +61,11 @@ You should have received a copy of the GNU General Public License along with thi
             Write-Verbose "$FunctionName - Need to populate the paths to Function calls"
             $files = Get-ChildItem $ModulePath -filter *.ps1 -recurse
             $FunctionPaths = @()
-            $null = $files | %{Get-Content $_.FullName | Where-Object {$_ -match 'function\s(\w+-\w+)'} | %{$FunctionPaths += [PSCustomObject]@{Function = $Matches[1]; FileName = $_.PsPath}}}
+            $null = $files | ForEach{Get-Content $_.FullName | Where-Object {$_ -match 'function\s(\w+-\w+)'} | %{$FunctionPaths += [PSCustomObject]@{Function = $Matches[1]; FileName = $_.PsPath}}}
         }
         $FunctionFile = $FunctionPaths | Where-Object {$_.Function -eq $FunctionName}
         $FileContents = Get-Content ($FunctionFile.FileName)
-        $funcs = $FileContents | Where-Object {$_ -match '[^\s|(]\w+-\w+'}  | %{$Matches[0]} | Select-Object -Unique
+        $funcs = $FileContents | Where-Object {$_ -match '[^\s|(]\w+-\w+'}  | ForEach{$Matches[0]} | Select-Object -Unique
         $results = @()
         if ($depth -ge 1){
             Foreach ($func in $funcs){
